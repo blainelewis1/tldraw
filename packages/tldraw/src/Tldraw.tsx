@@ -29,6 +29,7 @@ import { TDCallbacks, TldrawApp } from '~state'
 import { TLDR } from '~state/TLDR'
 import { shapeUtils } from '~state/shapes'
 import { dark, styled } from '~styles'
+import { onCommandEntered } from '~toolAdapter'
 import { TDDocument, TDStatus } from '~types'
 
 const ErrorBoundary = _Errorboundary as any
@@ -121,6 +122,10 @@ export interface TldrawProps extends TDCallbacks {
    * (optional) To hide cursors
    */
   hideCursors?: boolean
+
+  Menu?: React.FC<any>
+  menuProps?: object
+  appRef: React.RefObject<TldrawApp>
 }
 
 const isSystemDarkMode = window.matchMedia
@@ -164,6 +169,9 @@ export function Tldraw({
   onSessionEnd,
   onExport,
   hideCursors,
+  Menu,
+  menuProps,
+  appRef,
 }: TldrawProps) {
   showUI = false
 
@@ -194,6 +202,13 @@ export function Tldraw({
     })
     return app
   })
+
+  console.log(app, appRef)
+
+  //@ts-ignore
+  appRef.current = app
+
+  onCommandEntered(app, 'small')
 
   const [onCancel, setOnCancel] = React.useState<(() => void) | null>(null)
   const [onYes, setOnYes] = React.useState<(() => void) | null>(null)
@@ -347,6 +362,16 @@ export function Tldraw({
       <AlertDialogContext.Provider
         value={{ onYes, onCancel, onNo, dialogState, setDialogState, openDialog }}
       >
+        {Menu && menuProps ? (
+          <div style={{ zIndex: 50 }}>
+            <Menu
+              {...menuProps}
+              onSelectItem={(label: string) => {
+                onCommandEntered(app, label)
+              }}
+            />
+          </div>
+        ) : null}
         <InnerTldraw
           key={sId || 'Tldraw'}
           id={sId}
