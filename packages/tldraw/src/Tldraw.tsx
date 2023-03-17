@@ -126,6 +126,7 @@ export interface TldrawProps extends TDCallbacks {
   Menu?: React.FC<any>
   menuProps?: object
   appRef: React.RefObject<TldrawApp>
+  log: (a: any) => void
 }
 
 const isSystemDarkMode = window.matchMedia
@@ -172,6 +173,7 @@ export function Tldraw({
   Menu,
   menuProps,
   appRef,
+  log,
 }: TldrawProps) {
   showUI = false
 
@@ -203,12 +205,8 @@ export function Tldraw({
     return app
   })
 
-  console.log(app, appRef)
-
   //@ts-ignore
   appRef.current = app
-
-  onCommandEntered(app, 'small')
 
   const [onCancel, setOnCancel] = React.useState<(() => void) | null>(null)
   const [onYes, setOnYes] = React.useState<(() => void) | null>(null)
@@ -363,14 +361,12 @@ export function Tldraw({
         value={{ onYes, onCancel, onNo, dialogState, setDialogState, openDialog }}
       >
         {Menu && menuProps ? (
-          <div style={{ zIndex: 50 }}>
-            <Menu
-              {...menuProps}
-              onSelectItem={(label: string) => {
-                onCommandEntered(app, label)
-              }}
-            />
-          </div>
+          <Menu
+            {...menuProps}
+            onSelectItem={(label: string) => {
+              onCommandEntered(app, label, log)
+            }}
+          />
         ) : null}
         <InnerTldraw
           key={sId || 'Tldraw'}

@@ -34,6 +34,7 @@ export async function saveToFileSystem(
     name: document.name || 'New Document',
     fileHandle: fileHandle ?? null,
     document,
+    //@ts-ignore
     assets: {},
   }
 
